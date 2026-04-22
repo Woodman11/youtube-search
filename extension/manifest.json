@@ -5,9 +5,21 @@
   "description": "Press Shift+Y while watching to save video for keyword search",
   "permissions": [],
   "host_permissions": ["http://localhost:7799/*"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "YouTube Search"
+    "default_title": "My YouTube Search Tool",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "content_scripts": [
     {
