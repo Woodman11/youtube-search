@@ -8,6 +8,7 @@ fetches transcripts, and indexes them in SQLite FTS5.
 import json
 import os
 import sqlite3
+import sys
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -19,7 +20,12 @@ except ImportError:
     print("WARNING: youtube-transcript-api not installed.")
     print("Run: pip3 install youtube-transcript-api")
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'videos.db')
+if getattr(sys, 'frozen', False):
+    _data_dir = os.path.expanduser('~/Library/Application Support/MyYouTubeSearch')
+    os.makedirs(_data_dir, exist_ok=True)
+    DB_PATH = os.path.join(_data_dir, 'videos.db')
+else:
+    DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'videos.db')
 PORT = 7799
 
 
