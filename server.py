@@ -8,7 +8,6 @@ fetches transcripts, and indexes them in SQLite FTS5.
 import json
 import os
 import sqlite3
-import tempfile
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -19,13 +18,6 @@ except ImportError:
     HAS_TRANSCRIPT_API = False
     print("WARNING: youtube-transcript-api not installed.")
     print("Run: pip3 install youtube-transcript-api")
-
-try:
-    import yt_dlp
-    import whisper
-    HAS_WHISPER = True
-except ImportError:
-    HAS_WHISPER = False
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'videos.db')
 PORT = 7799
@@ -66,66 +58,17 @@ def _write_segments(video_id, segments):
     conn.close()
 
 
-def _transcribe_with_whisper(video_id, title):
-    """Download audio via yt-dlp and transcribe with Whisper."""
-    if not HAS_WHISPER:
-        print(f"Whisper not available — skipping audio transcription for: {title}")
-        return
-
-    print(f"Transcribing audio with Whisper: {title}")
-    with tempfile.TemporaryDirectory() as tmpdir:
-        audio_path = os.path.join(tmpdir, f"{video_id}.m4a")
-        ydl_opts = {
-            'format': 'bestaudio[ext=m4a]/bestaudio/best',
-            'outtmpl': audio_path,
-            'quiet': True,
-            'no_warnings': True,
-        }
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([f'https://www.youtube.com/watch?v={video_id}'])
-        except Exception as e:
-            print(f"yt-dlp failed for {video_id}: {e}")
-            return
-
-        # yt-dlp may append an extension — find the actual file
-        actual = next(
-            (os.path.join(tmpdir, f) for f in os.listdir(tmpdir)),
-            None
-        )
-        if not actual:
-            print(f"No audio file downloaded for {video_id}")
-            return
-
-        try:
-            model = whisper.load_model("base")
-            result = model.transcribe(actual, fp16=False)
-        except Exception as e:
-            print(f"Whisper failed for {video_id}: {e}")
-            return
-
-        segments = [
-            (seg['start'], seg['text'].strip())
-            for seg in result.get('segments', [])
-        ]
-
-    _write_segments(video_id, segments)
-    print(f"Whisper indexed {len(segments)} segments: {title}")
-
-
 def fetch_and_index(video_id, title, save_ts_secs):
-    if HAS_TRANSCRIPT_API:
-        try:
-            api = YouTubeTranscriptApi()
-            transcript = api.fetch(video_id)
-            segments = [(seg.start, seg.text) for seg in transcript]
-            _write_segments(video_id, segments)
-            print(f"Indexed {len(segments)} segments: {title}")
-            return
-        except Exception as e:
-            print(f"Transcript unavailable for {video_id}: {e} — falling back to Whisper")
-
-    _transcribe_with_whisper(video_id, title)
+    if not HAS_TRANSCRIPT_API:
+        return
+    try:
+        api = YouTubeTranscriptApi()
+        transcript = api.fetch(video_id)
+        segments = [(seg.start, seg.text) for seg in transcript]
+        _write_segments(video_id, segments)
+        print(f"Indexed {len(segments)} segments: {title}")
+    except Exception as e:
+        print(f"Transcript unavailable for {video_id}: {e}")
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -143,6 +86,16 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         from urllib.parse import urlparse, parse_qs
         parsed = urlparse(self.path)
+
+        if parsed.path == '/stats':
+            conn = sqlite3.connect(DB_PATH)
+            row = conn.execute(
+                'SELECT COUNT(*), SUM(has_transcript) FROM videos'
+            ).fetchone()
+            conn.close()
+            self._reply(200, {'total': row[0], 'indexed': row[1] or 0})
+            return
+
         if parsed.path != '/search':
             self.send_response(404)
             self.end_headers()

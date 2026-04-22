@@ -2,6 +2,14 @@ const qEl      = document.getElementById('q');
 const btn      = document.getElementById('btn');
 const status   = document.getElementById('status');
 const results  = document.getElementById('results');
+const statsEl  = document.getElementById('stats');
+
+fetch('http://localhost:7799/stats')
+  .then(r => r.json())
+  .then(d => {
+    statsEl.innerHTML = `<span class="indexed">${d.indexed}</span> / ${d.total} indexed`;
+  })
+  .catch(() => {});
 
 function fmtTime(secs) {
   const h = Math.floor(secs / 3600);
