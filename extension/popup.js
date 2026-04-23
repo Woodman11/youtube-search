@@ -20,6 +20,27 @@ function fmtTime(secs) {
     : `${m}:${String(s).padStart(2,'0')}`;
 }
 
+function getVideoId(url) {
+  try { return new URL(url).searchParams.get('v') || url; }
+  catch { return url; }
+}
+
+function makeResultEl(r) {
+  const a = document.createElement('a');
+  a.className = 'result';
+  a.href = r.url;
+  a.target = '_blank';
+  const date = r.savedAt
+    ? new Date(r.savedAt * 1000).toLocaleDateString(undefined, {year:'numeric',month:'short',day:'numeric'})
+      + ' ' + new Date(r.savedAt * 1000).toLocaleTimeString(undefined, {hour:'numeric',minute:'2-digit'})
+    : '';
+  a.innerHTML = `
+    <div class="result-title">${r.title}</div>
+    <div class="result-time">@ ${fmtTime(r.startSecs)}<span class="result-date">${date}</span></div>
+  `;
+  return a;
+}
+
 async function doSearch() {
   const q = qEl.value.trim();
   if (!q) return;
@@ -39,19 +60,41 @@ async function doSearch() {
     const items = data.results;
     status.textContent = items.length ? `${items.length} result(s)` : 'No results found.';
 
+    // Group hits by video ID, preserving first-seen order
+    const groups = new Map();
     for (const r of items) {
-      const a = document.createElement('a');
-      a.className = 'result';
-      a.href = r.url;
-      a.target = '_blank';
-      const date = r.savedAt
-        ? new Date(r.savedAt * 1000).toLocaleDateString(undefined, {year:'numeric',month:'short',day:'numeric'})
-        : '';
-      a.innerHTML = `
-        <div class="result-title">${r.title}</div>
-        <div class="result-time">@ ${fmtTime(r.startSecs)}<span class="result-date">${date}</span></div>
-      `;
-      results.appendChild(a);
+      const vid = getVideoId(r.url);
+      if (!groups.has(vid)) groups.set(vid, []);
+      groups.get(vid).push(r);
+    }
+
+    for (const hits of groups.values()) {
+      results.appendChild(makeResultEl(hits[0]));
+
+      if (hits.length > 1) {
+        const rest = hits.slice(1);
+        const folder = document.createElement('div');
+
+        const toggle = document.createElement('div');
+        toggle.className = 'folder-toggle';
+        toggle.textContent = `▶  ${rest.length} more timestamp${rest.length > 1 ? 's' : ''} in this video`;
+        folder.appendChild(toggle);
+
+        const inner = document.createElement('div');
+        inner.className = 'folder-inner';
+        inner.style.display = 'none';
+        for (const r of rest) inner.appendChild(makeResultEl(r));
+
+        toggle.addEventListener('click', () => {
+          const open = inner.style.display !== 'none';
+          inner.style.display = open ? 'none' : 'block';
+          toggle.textContent = `${open ? '▶' : '▼'}  ${rest.length} more timestamp${rest.length > 1 ? 's' : ''} in this video`;
+          if (!open) toggle.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        });
+
+        folder.appendChild(inner);
+        results.appendChild(folder);
+      }
     }
   } catch {
     status.textContent = 'Server not running — start server.py';

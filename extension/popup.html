@@ -6,6 +6,8 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     width: 360px;
+    max-height: 600px;
+    overflow-y: auto;
     background: #0f0f0f;
     color: #eee;
     font: 13px/1.4 "Segoe UI", Roboto, sans-serif;
@@ -57,7 +59,7 @@
     color: #888;
     min-height: 18px;
   }
-  #results { max-height: 380px; overflow-y: auto; }
+  #results {}
   .result {
     display: block;
     padding: 8px 12px;
@@ -84,10 +86,25 @@
     color: #4a9eff;
     margin-left: 8px;
   }
+  .folder-toggle {
+    padding: 4px 12px 4px 28px;
+    font-size: 11px;
+    color: #555;
+    cursor: pointer;
+    background: #0a0a0a;
+    border-top: 1px solid #181818;
+    user-select: none;
+  }
+  .folder-toggle:hover { color: #999; background: #111; }
+  .folder-inner .result {
+    padding-left: 28px;
+    background: #0d0d0d;
+  }
+  .folder-inner .result:hover { background: #151515; }
 </style>
 </head>
 <body>
-<div id="header">My YouTube Search <span id="stats"></span></div>
+<div id="header">My YouTube Indexed Search Tool <span id="stats"></span></div>
 <div id="search-row">
   <input id="q" type="text" placeholder="Search saved videos…" autofocus>
   <button id="btn">Search</button>
