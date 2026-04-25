@@ -31,57 +31,40 @@ document.addEventListener('keydown', async (e) => {
     .catch(() => showToast('Server not running — start server.py', 'error'));
 }, true);
 
-function fetchTranscriptFromPage() {
-  return new Promise(resolve => {
-    const eventName = '__yt_caps_' + Date.now();
-    let script;
-
-    const timer = setTimeout(() => {
-      window.removeEventListener(eventName, onUrl);
-      if (script) script.remove();
-      resolve(null);
-    }, 3000);
-
-    function onUrl(e) {
-      clearTimeout(timer);
-      window.removeEventListener(eventName, onUrl);
-      if (script) script.remove();
-
-      const baseUrl = e.detail;
-      if (!baseUrl) { resolve(null); return; }
-
-      // Fetch the timedtext JSON from within the browser using the existing YouTube session
-      fetch(baseUrl + '&fmt=json3')
-        .then(r => r.json())
-        .then(data => {
-          const segs = [];
-          for (const ev of (data.events || [])) {
-            if (!ev.segs) continue;
-            const start = (ev.tStartMs || 0) / 1000;
-            const text = ev.segs.map(s => s.utf8 || '').join('').trim();
-            if (text && text !== '\n') segs.push({ start, text });
-          }
-          resolve(segs.length ? segs : null);
-        })
-        .catch(() => resolve(null));
+async function fetchTranscriptFromPage() {
+  const baseUrl = getCaptionBaseUrl();
+  if (!baseUrl) return null;
+  try {
+    const r = await fetch(baseUrl + '&fmt=json3');
+    const data = await r.json();
+    const segs = [];
+    for (const ev of (data.events || [])) {
+      if (!ev.segs) continue;
+      const start = (ev.tStartMs || 0) / 1000;
+      const text = ev.segs.map(s => s.utf8 || '').join('').trim();
+      if (text && text !== '\n') segs.push({ start, text });
     }
+    return segs.length ? segs : null;
+  } catch {
+    return null;
+  }
+}
 
-    window.addEventListener(eventName, onUrl);
-
-    // Inject into page's main world to read ytInitialPlayerResponse
-    script = document.createElement('script');
-    script.textContent = `(function(){
-      try {
-        const tracks = window.ytInitialPlayerResponse
-          ?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
-        const track = tracks && (tracks.find(t => /^en/.test(t.languageCode)) || tracks[0]);
-        window.dispatchEvent(new CustomEvent('${eventName}', {detail: track ? track.baseUrl : null}));
-      } catch(e) {
-        window.dispatchEvent(new CustomEvent('${eventName}', {detail: null}));
-      }
-    })();`;
-    document.head.appendChild(script);
-  });
+function getCaptionBaseUrl() {
+  // ytInitialPlayerResponse is embedded as JSON in a <script> tag — no injection needed
+  for (const script of document.querySelectorAll('script')) {
+    const text = script.textContent;
+    if (!text.includes('captionTracks')) continue;
+    const urls = [];
+    const re = /"baseUrl":"(https:[^"]+timedtext[^"]+)"/g;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      urls.push(m[1].replace(/\\u0026/g, '&'));
+    }
+    if (!urls.length) continue;
+    return urls.find(u => /[?&]lang=en/.test(u)) || urls[0];
+  }
+  return null;
 }
 
 function showToast(msg, type = 'ok') {
