@@ -74,20 +74,20 @@ function showToast(msg, type = 'ok') {
   const el = document.createElement('div');
   el.id = 'yt-search-toast';
   el.textContent = msg;
-  el.style.cssText = [
-    'position:fixed',
-    'top:72px',
-    'right:20px',
-    'z-index:99999',
-    `background:${type === 'error' ? '#c0392b' : '#1a1a2e'}`,
-    'color:#fff',
-    'padding:10px 18px',
-    'border-radius:6px',
-    'font:bold 13px/1.4 "YouTube Noto",Roboto,sans-serif',
-    'box-shadow:0 4px 14px rgba(0,0,0,.45)',
-    'transition:opacity .3s ease',
-    'opacity:1',
-  ].join(';');
+  Object.assign(el.style, {
+    position: 'fixed',
+    top: '72px',
+    right: '20px',
+    zIndex: '99999',
+    background: type === 'error' ? '#c0392b' : '#1a1a2e',
+    color: '#fff',
+    padding: '10px 18px',
+    borderRadius: '6px',
+    font: 'bold 13px/1.4 "YouTube Noto",Roboto,sans-serif',
+    boxShadow: '0 4px 14px rgba(0,0,0,.45)',
+    transition: 'opacity .3s ease',
+    opacity: '1',
+  });
 
   document.body.appendChild(el);
 
