@@ -66,7 +66,6 @@ def _fetch_segments(video_id):
         subprocess.run(
             [
                 ytdlp,
-                '--cookies-from-browser', 'chrome',
                 '--write-auto-subs',
                 '--sub-lang', 'en',
                 '--sub-format', 'json3',

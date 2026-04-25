@@ -36,29 +36,9 @@ document.addEventListener('keydown', (e) => {
   );
 }, true);
 
-// Fire-and-forget: pass caption URL to background, which fetches and uploads transcript
+// Fire-and-forget: background fetches the watch page fresh and parses captionTracks
 function uploadTranscript(videoId) {
-  const baseUrl = getCaptionBaseUrl();
-  if (!baseUrl) return;
-  // Background worker fetches the timedtext (no CORS restriction there)
-  chrome.runtime.sendMessage({type: 'transcript', data: {videoId, captionUrl: baseUrl + '&fmt=json3'}});
-}
-
-function getCaptionBaseUrl() {
-  // ytInitialPlayerResponse is embedded as JSON in a <script> tag — no injection needed
-  for (const script of document.querySelectorAll('script')) {
-    const text = script.textContent;
-    if (!text.includes('captionTracks')) continue;
-    const urls = [];
-    const re = /"baseUrl":"(https:[^"]+timedtext[^"]+)"/g;
-    let m;
-    while ((m = re.exec(text)) !== null) {
-      urls.push(m[1].replace(/\\u0026/g, '&'));
-    }
-    if (!urls.length) continue;
-    return urls.find(u => /[?&]lang=en/.test(u)) || urls[0];
-  }
-  return null;
+  chrome.runtime.sendMessage({type: 'transcript', data: {videoId}});
 }
 
 function showToast(msg, type = 'ok') {
