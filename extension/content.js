@@ -19,9 +19,15 @@ document.addEventListener('keydown', (e) => {
   const title = document.title.replace(/ - YouTube$/, '').trim();
 
   // Route through background service worker to avoid Private Network Access block
+  console.log('[yt-search] sending save for', videoId);
   chrome.runtime.sendMessage(
     {type: 'save', data: {videoId, currentTime, title}},
     response => {
+      console.log('[yt-search] response:', response, 'lastError:', chrome.runtime.lastError?.message);
+      if (chrome.runtime.lastError) {
+        showToast('Extension error — reload page', 'error');
+        return;
+      }
       if (response && response.ok) {
         showToast(response.data.message);
         if (response.data.new_save) uploadTranscript(videoId);
