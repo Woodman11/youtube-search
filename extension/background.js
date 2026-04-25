@@ -12,10 +12,24 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === 'transcript') {
-    fetch('http://localhost:7799/transcript', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(msg.data)
-    }).catch(() => {});
+    const {videoId, captionUrl} = msg.data;
+    fetch(captionUrl)
+      .then(r => r.json())
+      .then(data => {
+        const segments = [];
+        for (const ev of (data.events || [])) {
+          if (!ev.segs) continue;
+          const start = (ev.tStartMs || 0) / 1000;
+          const text = ev.segs.map(s => s.utf8 || '').join('').trim();
+          if (text && text !== '\n') segments.push({start, text});
+        }
+        if (!segments.length) return;
+        return fetch('http://localhost:7799/transcript', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({videoId, segments})
+        });
+      })
+      .catch(() => {});
   }
 });

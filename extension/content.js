@@ -36,27 +36,12 @@ document.addEventListener('keydown', (e) => {
   );
 }, true);
 
-// Fire-and-forget: fetch transcript from page and upload to server
-async function uploadTranscript(videoId) {
+// Fire-and-forget: pass caption URL to background, which fetches and uploads transcript
+function uploadTranscript(videoId) {
   const baseUrl = getCaptionBaseUrl();
   if (!baseUrl) return;
-  try {
-    const ac = new AbortController();
-    setTimeout(() => ac.abort(), 5000);
-    const r = await fetch(baseUrl + '&fmt=json3', { signal: ac.signal });
-    const data = await r.json();
-    const segs = [];
-    for (const ev of (data.events || [])) {
-      if (!ev.segs) continue;
-      const start = (ev.tStartMs || 0) / 1000;
-      const text = ev.segs.map(s => s.utf8 || '').join('').trim();
-      if (text && text !== '\n') segs.push({ start, text });
-    }
-    if (!segs.length) return;
-    chrome.runtime.sendMessage({type: 'transcript', data: {videoId, segments: segs}});
-  } catch {
-    // transcript upload is best-effort, ignore all errors
-  }
+  // Background worker fetches the timedtext (no CORS restriction there)
+  chrome.runtime.sendMessage({type: 'transcript', data: {videoId, captionUrl: baseUrl + '&fmt=json3'}});
 }
 
 function getCaptionBaseUrl() {
