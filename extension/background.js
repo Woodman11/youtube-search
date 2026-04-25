@@ -1,5 +1,4 @@
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  console.log('[yt-search bg] message:', msg.type);
   if (msg.type === 'save') {
     fetch('http://localhost:7799/save', {
       method: 'POST',

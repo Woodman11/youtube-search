@@ -19,11 +19,9 @@ document.addEventListener('keydown', (e) => {
   const title = document.title.replace(/ - YouTube$/, '').trim();
 
   // Route through background service worker to avoid Private Network Access block
-  console.log('[yt-search] sending save for', videoId);
   chrome.runtime.sendMessage(
     {type: 'save', data: {videoId, currentTime, title}},
     response => {
-      console.log('[yt-search] response:', response, 'lastError:', chrome.runtime.lastError?.message);
       if (chrome.runtime.lastError) {
         showToast('Extension error — reload page', 'error');
         return;
@@ -79,30 +77,41 @@ function getCaptionBaseUrl() {
 }
 
 function showToast(msg, type = 'ok') {
-  document.getElementById('yt-search-toast')?.remove();
+  document.getElementById('yt-search-host')?.remove();
+
+  // Shadow DOM isolates the toast from YouTube's CSS and MutationObservers
+  const host = document.createElement('div');
+  host.id = 'yt-search-host';
+  const shadow = host.attachShadow({mode: 'closed'});
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .toast {
+      position: fixed;
+      top: 72px;
+      right: 20px;
+      z-index: 2147483647;
+      background: ${type === 'error' ? '#c0392b' : '#1a1a2e'};
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font: bold 13px/1.4 sans-serif;
+      box-shadow: 0 4px 14px rgba(0,0,0,.45);
+      opacity: 1;
+      transition: opacity .3s ease;
+    }
+  `;
 
   const el = document.createElement('div');
-  el.id = 'yt-search-toast';
+  el.className = 'toast';
   el.textContent = msg;
-  Object.assign(el.style, {
-    position: 'fixed',
-    top: '72px',
-    right: '20px',
-    zIndex: '99999',
-    background: type === 'error' ? '#c0392b' : '#1a1a2e',
-    color: '#fff',
-    padding: '10px 18px',
-    borderRadius: '6px',
-    font: 'bold 13px/1.4 "YouTube Noto",Roboto,sans-serif',
-    boxShadow: '0 4px 14px rgba(0,0,0,.45)',
-    transition: 'opacity .3s ease',
-    opacity: '1',
-  });
 
-  document.body.appendChild(el);
+  shadow.appendChild(style);
+  shadow.appendChild(el);
+  document.documentElement.appendChild(host);
 
   setTimeout(() => {
     el.style.opacity = '0';
-    setTimeout(() => el.remove(), 300);
+    setTimeout(() => host.remove(), 300);
   }, 2700);
 }
