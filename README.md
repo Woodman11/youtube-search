@@ -13,18 +13,17 @@ no cloud.
 ## Install (macOS, recommended — Homebrew)
 
 ```bash
-brew tap Woodman11/youtube-search
-brew install youtube-search
-brew services start youtube-search
+brew tap Woodman11/reelm
+brew install reelm
+brew services start reelm
 ```
 
 Then load the Chrome extension (one-time, manual — not yet on the Web Store):
 
 1. Open `chrome://extensions`
 2. Enable **Developer mode** (top right)
-3. Click **Load unpacked** → select the path printed by
-   `brew --prefix youtube-search`/libexec/extension (or copy from the
-   `Chrome extension` caveat shown after `brew install`)
+3. Click **Load unpacked** → select `$(brew --prefix)/opt/reelm/libexec/extension`
+   (or copy the path from the `Chrome extension` caveat shown after `brew install`)
 4. Pin the icon if you want the popup search
 
 Open any YouTube video and press **Shift+Y** — a toast confirms the save
@@ -45,18 +44,20 @@ and the transcript indexes in the background.
 
 Everything stays on your Mac:
 
-- **Database:** `~/Library/Application Support/MyYouTubeSearch/videos.db`
-  (titles, video IDs, save timestamps, full auto-generated transcripts)
-- **Logs:** `$(brew --prefix)/var/log/youtube-search/`
+- **Database:** `~/Library/Application Support/Reelm/videos.db`
+  (titles, video IDs, save timestamps, full auto-generated transcripts).
+  Older `~/Library/Application Support/MyYouTubeSearch/` DBs are migrated
+  automatically on first run.
+- **Logs:** `$(brew --prefix)/var/log/reelm/`
 - **No network egress** beyond `youtube.com` (for transcript fetches) and
   the local server on `127.0.0.1:7799`.
 
 To wipe everything:
 
 ```bash
-brew services stop youtube-search
-brew uninstall youtube-search
-rm -rf ~/Library/Application\ Support/MyYouTubeSearch
+brew services stop reelm
+brew uninstall reelm
+rm -rf ~/Library/Application\ Support/Reelm
 ```
 
 ## Install (developer / from source)
