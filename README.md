@@ -66,7 +66,7 @@ For working on the code directly:
 
 ```bash
 brew install python yt-dlp
-git clone https://github.com/Woodman11/youtube-search ~/reelm
+git clone https://github.com/Woodman11/reelm ~/reelm
 cd ~/reelm
 ./setup.sh
 venv/bin/python server.py
