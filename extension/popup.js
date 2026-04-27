@@ -39,10 +39,22 @@ function makeResultEl(r) {
     ? new Date(r.savedAt * 1000).toLocaleDateString(undefined, {year:'numeric',month:'short',day:'numeric'})
       + ' ' + new Date(r.savedAt * 1000).toLocaleTimeString(undefined, {hour:'numeric',minute:'2-digit'})
     : '';
-  a.innerHTML = `
-    <div class="result-title">${r.title}</div>
-    <div class="result-time">@ ${fmtTime(r.startSecs)}<span class="result-date">${date}</span></div>
-  `;
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'result-title';
+  titleEl.textContent = r.title;
+
+  const timeEl = document.createElement('div');
+  timeEl.className = 'result-time';
+  timeEl.textContent = `@ ${fmtTime(r.startSecs)}`;
+
+  const dateEl = document.createElement('span');
+  dateEl.className = 'result-date';
+  dateEl.textContent = date;
+  timeEl.appendChild(dateEl);
+
+  a.appendChild(titleEl);
+  a.appendChild(timeEl);
   return a;
 }
 

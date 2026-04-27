@@ -10,48 +10,72 @@ no cloud.
                                         +-- yt-dlp (transcript fallback)
 ```
 
-## Install (macOS)
-
-### 1. System dependencies
+## Install (macOS, recommended — Homebrew)
 
 ```bash
-brew install python yt-dlp
+brew tap Woodman11/youtube-search
+brew install youtube-search
+brew services start youtube-search
 ```
 
-`yt-dlp` is required — the server shells out to it for transcripts.
-
-### 2. Get the code
-
-```bash
-git clone <repo-url> ~/reelm
-cd ~/reelm
-./setup.sh
-```
-
-`setup.sh` checks for `python3` and `yt-dlp`, creates `venv/`, installs
-Python deps. The only Python dep is `rumps` (used by the optional menu-bar
-app `app.py`); the plain server uses only stdlib.
-
-### 3. Load the Chrome extension
+Then load the Chrome extension (one-time, manual — not yet on the Web Store):
 
 1. Open `chrome://extensions`
 2. Enable **Developer mode** (top right)
-3. Click **Load unpacked** → select the `extension/` folder
+3. Click **Load unpacked** → select the path printed by
+   `brew --prefix youtube-search`/libexec/extension (or copy from the
+   `Chrome extension` caveat shown after `brew install`)
 4. Pin the icon if you want the popup search
 
-### 4. Start the server
+Open any YouTube video and press **Shift+Y** — a toast confirms the save
+and the transcript indexes in the background.
+
+### What to expect on first run
+
+- macOS may prompt you to allow Python to accept incoming network connections
+  the first time the server binds. The server only listens on `127.0.0.1`,
+  so denying the prompt won't break anything — Allow is fine either way.
+- Chrome will show a "Disable developer mode extensions" banner each time
+  you launch the browser. That's expected for unpacked extensions and will
+  go away once we publish to the Web Store.
+- The first save on a new YouTube tab may trigger a one-time Private Network
+  Access prompt — accept it.
+
+### Privacy / data location
+
+Everything stays on your Mac:
+
+- **Database:** `~/Library/Application Support/MyYouTubeSearch/videos.db`
+  (titles, video IDs, save timestamps, full auto-generated transcripts)
+- **Logs:** `$(brew --prefix)/var/log/youtube-search/`
+- **No network egress** beyond `youtube.com` (for transcript fetches) and
+  the local server on `127.0.0.1:7799`.
+
+To wipe everything:
 
 ```bash
+brew services stop youtube-search
+brew uninstall youtube-search
+rm -rf ~/Library/Application\ Support/MyYouTubeSearch
+```
+
+## Install (developer / from source)
+
+For working on the code directly:
+
+```bash
+brew install python yt-dlp
+git clone https://github.com/Woodman11/youtube-search ~/reelm
+cd ~/reelm
+./setup.sh
 venv/bin/python server.py
 ```
 
-Should print `listening on http://localhost:7799`. Open any YouTube video
-and press **Shift+Y** — a toast confirms the save and the transcript is
-indexed in the background.
+Then load the extension as above, pointing at `~/reelm/extension`.
 
-### 5. (Optional) Auto-start at login
+### (Optional) Dev auto-start at login
 
-Two LaunchAgent plists are included:
+Two LaunchAgent plists are included for source installs:
 
 - `com.james.reelm.plist` — runs `server.py` continuously
 - `com.james.reelm-maintain.plist` — runs `maintain.py` every 15 min
@@ -70,6 +94,8 @@ cp com.*.plist ~/Library/LaunchAgents/
 launchctl load ~/Library/LaunchAgents/com.<you>.reelm.plist
 launchctl load ~/Library/LaunchAgents/com.<you>.reelm-maintain.plist
 ```
+
+(Brew users skip this whole section — `brew services` handles it.)
 
 ## Usage
 

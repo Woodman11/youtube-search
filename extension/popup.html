@@ -40,6 +40,19 @@
     color: #555;
   }
   #stats .indexed { color: #4a9eff; }
+  .hint {
+    font-size: 11px;
+    color: #666;
+    margin-left: 6px;
+  }
+  .hint kbd {
+    font: 10px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 3px;
+    padding: 1px 4px;
+    color: #bbb;
+  }
   #search-row {
     display: flex;
     gap: 6px;
@@ -117,7 +130,7 @@
 </style>
 </head>
 <body>
-<div id="header"><span><span id="health-dot"></span>Reelm</span><span id="stats"></span></div>
+<div id="header"><span><span id="health-dot"></span>Reelm<span class="hint"><kbd>Shift+Y</kbd> indexes video</span></span><span id="stats"></span></div>
 <div id="search-row">
   <input id="q" type="text" placeholder="Search saved videos…" autofocus>
   <button id="btn">Search</button>

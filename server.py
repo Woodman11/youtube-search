@@ -110,18 +110,40 @@ def fetch_and_index(video_id, title, save_ts_secs):
 
 class Handler(BaseHTTPRequestHandler):
 
+    def _allowed_origin(self):
+        origin = self.headers.get('Origin', '')
+        return origin if origin.startswith('chrome-extension://') else None
+
     def _cors(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
+        origin = self._allowed_origin()
+        if not origin:
+            return
+        self.send_header('Access-Control-Allow-Origin', origin)
+        self.send_header('Vary', 'Origin')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.send_header('Access-Control-Allow-Private-Network', 'true')
 
+    def _origin_ok(self):
+        # Browser-originated requests must come from a chrome-extension:// origin.
+        # CLI/loopback callers (curl, search.py) send no Origin header and are allowed.
+        origin = self.headers.get('Origin')
+        return origin is None or origin.startswith('chrome-extension://')
+
     def do_OPTIONS(self):
+        if not self._origin_ok():
+            self.send_response(403)
+            self.end_headers()
+            return
         self.send_response(204)
         self._cors()
         self.end_headers()
 
     def do_GET(self):
+        if not self._origin_ok():
+            self.send_response(403)
+            self.end_headers()
+            return
         from urllib.parse import urlparse, parse_qs
         parsed = urlparse(self.path)
 
@@ -168,6 +190,10 @@ class Handler(BaseHTTPRequestHandler):
             self._reply(500, {'results': [], 'error': str(e)})
 
     def do_POST(self):
+        if not self._origin_ok():
+            self.send_response(403)
+            self.end_headers()
+            return
         length = int(self.headers.get('Content-Length', 0))
         data = json.loads(self.rfile.read(length))
 
