@@ -12,6 +12,14 @@ no cloud.
 
 ## Install (macOS, recommended — Homebrew)
 
+If you don't already have [Homebrew](https://brew.sh) installed:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Then:
+
 ```bash
 brew tap Woodman11/reelm
 brew install reelm
