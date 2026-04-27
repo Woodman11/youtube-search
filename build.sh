@@ -7,12 +7,12 @@ venv/bin/pip install pyinstaller rumps -q
 echo "==> Building app bundle..."
 venv/bin/pyinstaller \
   --windowed \
-  --name "My YouTube Indexed Search Tool" \
+  --name "Reelm" \
   --add-data "extension/icons:icons" \
   --hidden-import youtube_transcript_api \
   --noconfirm \
   app.py
 
 echo ""
-echo "==> Done! App is at: dist/My YouTube Indexed Search Tool.app"
+echo "==> Done! App is at: dist/Reelm.app"
 echo "    Drag it to /Applications to install."

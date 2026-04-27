@@ -17,7 +17,7 @@ def _icon_path():
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), 'extension', 'icons', 'icon32.png')
 
 
-class YouTubeSearchApp(rumps.App):
+class ReelmApp(rumps.App):
     def __init__(self):
         super().__init__('', icon=_icon_path(), template=False, quit_button=None)
         self.stats_item = rumps.MenuItem('Loading…')
@@ -46,4 +46,4 @@ class YouTubeSearchApp(rumps.App):
 
 
 if __name__ == '__main__':
-    YouTubeSearchApp().run()
+    ReelmApp().run()

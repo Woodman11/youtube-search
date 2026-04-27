@@ -1,4 +1,4 @@
-# My YouTube Indexed Search Tool
+# Reelm
 
 Save YouTube videos with **Shift+Y** while watching, then search across the
 auto-generated transcripts of every video you've saved. Local SQLite + FTS5,
@@ -23,8 +23,8 @@ brew install python yt-dlp
 ### 2. Get the code
 
 ```bash
-git clone <repo-url> ~/youtube-search
-cd ~/youtube-search
+git clone <repo-url> ~/reelm
+cd ~/reelm
 ./setup.sh
 ```
 
@@ -53,8 +53,8 @@ indexed in the background.
 
 Two LaunchAgent plists are included:
 
-- `com.james.youtube-search.plist` — runs `server.py` continuously
-- `com.james.youtube-maintain.plist` — runs `maintain.py` every 15 min
+- `com.james.reelm.plist` — runs `server.py` continuously
+- `com.james.reelm-maintain.plist` — runs `maintain.py` every 15 min
   to retry failed transcripts and optimize the FTS index
 
 **Both plists are user-specific.** Before installing, edit them:
@@ -67,8 +67,8 @@ Then:
 
 ```bash
 cp com.*.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/com.<you>.youtube-search.plist
-launchctl load ~/Library/LaunchAgents/com.<you>.youtube-maintain.plist
+launchctl load ~/Library/LaunchAgents/com.<you>.reelm.plist
+launchctl load ~/Library/LaunchAgents/com.<you>.reelm-maintain.plist
 ```
 
 ## Usage
@@ -96,13 +96,13 @@ launchctl load ~/Library/LaunchAgents/com.<you>.youtube-maintain.plist
 `videos.db` is gitignored. To copy your indexed library to a new Mac:
 
 ```bash
-scp old-mac:~/youtube-search/videos.db ~/youtube-search/videos.db
+scp old-mac:~/reelm/videos.db ~/reelm/videos.db
 ```
 
 ## Troubleshooting
 
 - **Toast says "Server not running"** → start `server.py`, or check
-  `~/Library/LaunchAgents/` is loaded (`launchctl list | grep youtube`)
+  `~/Library/LaunchAgents/` is loaded (`launchctl list | grep reelm`)
 - **Saves work but transcripts never index** → verify `yt-dlp` is on PATH
   (`which yt-dlp`) and is recent (`yt-dlp --version` ≥ 2026.03.17)
 - **Shift+Y does nothing** → reload the YouTube tab after installing the

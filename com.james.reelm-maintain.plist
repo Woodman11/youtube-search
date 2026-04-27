@@ -3,19 +3,19 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.james.youtube-search</string>
+    <string>com.james.reelm-maintain</string>
     <key>ProgramArguments</key>
     <array>
         <string>/Users/james/Systems-Admin/youtube-search/venv/bin/python3</string>
-        <string>/Users/james/Systems-Admin/youtube-search/server.py</string>
+        <string>/Users/james/Systems-Admin/youtube-search/maintain.py</string>
     </array>
+    <key>StartInterval</key>
+    <integer>900</integer>
     <key>RunAtLoad</key>
     <true/>
-    <key>KeepAlive</key>
-    <true/>
     <key>StandardOutPath</key>
-    <string>/Users/james/Systems-Admin/youtube-search/server.log</string>
+    <string>/Users/james/Systems-Admin/youtube-search/maintain.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/james/Systems-Admin/youtube-search/server.log</string>
+    <string>/Users/james/Systems-Admin/youtube-search/maintain.log</string>
 </dict>
 </plist>

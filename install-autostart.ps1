@@ -1,5 +1,5 @@
-# Registers youtube-search server as a Task Scheduler task that runs at login.
-# Equivalent to the Mac LaunchAgent (com.james.youtube-search.plist).
+# Registers Reelm server as a Task Scheduler task that runs at login.
+# Equivalent to the Mac LaunchAgent (com.james.reelm.plist).
 # Run once from the project directory:
 #   powershell -ExecutionPolicy Bypass -File install-autostart.ps1
 
@@ -9,7 +9,7 @@ $projectDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $python     = Join-Path $projectDir 'venv\Scripts\pythonw.exe'
 $script     = Join-Path $projectDir 'server.py'
 $logFile    = Join-Path $projectDir 'server.log'
-$taskName   = 'YouTubeSearchServer'
+$taskName   = 'ReelmServer'
 
 if (-not (Test-Path $python)) {
     Write-Error "venv not found at $python — run setup.bat first."
@@ -25,7 +25,7 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -RunLevel Limited -Description 'YouTube search local server (port 7799)'
+Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -RunLevel Limited -Description 'Reelm local server (port 7799)'
 
 Write-Host ""
 Write-Host "Task '$taskName' registered. The server will start automatically at next login."
