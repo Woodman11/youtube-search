@@ -58,8 +58,9 @@ and the transcript indexes in the background.
   Access prompt — accept it.
 - **macOS blocks the background service on first install.** You'll see a
   system notification that reeLm "added items that can run in the background."
-  Go to **System Settings → General → Login Items & Extensions**, find reeLm,
-  and enable it. Then run `brew services restart reelm`.
+  Go to **System Settings → General → Login Items & Extensions**, find the
+  magnifying glass entry for reeLm, toggle it **off then back on**, then run
+  `brew services restart reelm`.
 
 ### Shared Mac / multi-user installs
 
