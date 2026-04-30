@@ -56,6 +56,22 @@ and the transcript indexes in the background.
   go away once we publish to the Web Store.
 - The first save on a new YouTube tab may trigger a one-time Private Network
   Access prompt — accept it.
+- **macOS blocks the background service on first install.** You'll see a
+  system notification that reeLm "added items that can run in the background."
+  Go to **System Settings → General → Login Items & Extensions**, find reeLm,
+  and enable it. Then run `brew services restart reelm`.
+
+### Shared Mac / multi-user installs
+
+If Homebrew was installed by a different user on the same Mac, you may see
+`/opt/homebrew is not writable` errors. Fix ownership for your user, then
+reinstall:
+
+```bash
+sudo chown -R $(whoami) /opt/homebrew
+brew reinstall reelm
+brew services start reelm
+```
 
 ### Privacy / data location
 
@@ -65,7 +81,7 @@ Everything stays on your Mac:
   (titles, video IDs, save timestamps, full auto-generated transcripts).
   Older `~/Library/Application Support/MyYouTubeSearch/` DBs are migrated
   automatically on first run.
-- **Logs:** `$(brew --prefix)/var/log/reelm/`
+- **Logs:** `~/Library/Logs/reelm/server.log`
 - **No network egress** beyond `youtube.com` (for transcript fetches) and
   the local server on `127.0.0.1:7799`.
 
@@ -145,6 +161,8 @@ scp old-mac:~/reelm/videos.db ~/reelm/videos.db
 
 ## Troubleshooting
 
+- **Extension popup shows "server offline"** → run `brew services start reelm`.
+  Check `~/Library/Logs/reelm/server.log` for crash details.
 - **Toast says "Server not running"** → start `server.py`, or check
   `~/Library/LaunchAgents/` is loaded (`launchctl list | grep reelm`)
 - **Saves work but transcripts never index** → verify `yt-dlp` is on PATH

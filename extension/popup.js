@@ -13,7 +13,7 @@ fetch('http://localhost:7799/stats')
   })
   .catch(() => {
     healthDot.className = 'warn';
-    statsEl.textContent = 'server offline';
+    statsEl.textContent = 'server offline — run: brew services start reelm';
   });
 
 function fmtTime(secs) {
