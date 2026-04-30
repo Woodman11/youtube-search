@@ -39,8 +39,8 @@ Then load the Chrome extension (one-time, manual — not yet on the Web Store):
 
 1. Open `chrome://extensions`
 2. Enable **Developer mode** (top right)
-3. Click **Load unpacked** → select `$(brew --prefix)/opt/reelm/libexec/extension`
-   (or copy the path from the `Chrome extension` caveat shown after `brew install`)
+3. Click **Load unpacked** — in the dialog press **Cmd+Shift+G**, paste:
+   `/opt/homebrew/opt/reelm/libexec/extension` and hit Enter
 4. Pin the icon if you want the popup search
 
 Open any YouTube video and press **Shift+Y** — a toast confirms the save
