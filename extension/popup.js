@@ -114,7 +114,7 @@ async function doSearch() {
       }
     }
   } catch {
-    status.textContent = 'Server not running — start server.py';
+    status.textContent = 'Server not running — run: brew services start reelm';
   }
 }
 

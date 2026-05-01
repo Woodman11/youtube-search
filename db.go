@@ -16,6 +16,11 @@ func dbDataDir() string {
 	return filepath.Join(h, "Library", "Application Support", "Reelm")
 }
 
+func logDir() string {
+	h, _ := os.UserHomeDir()
+	return filepath.Join(h, "Library", "Logs", "reelm")
+}
+
 func dbFilePath() string {
 	return filepath.Join(dbDataDir(), "videos.db")
 }
@@ -48,6 +53,7 @@ func migrateLegacy() {
 
 func openDB() (*sql.DB, error) {
 	migrateLegacy()
+	_ = os.MkdirAll(logDir(), 0o755)
 	if err := os.MkdirAll(dbDataDir(), 0o755); err != nil {
 		return nil, err
 	}
