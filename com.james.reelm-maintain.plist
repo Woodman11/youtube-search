@@ -6,8 +6,8 @@
     <string>com.james.reelm-maintain</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/james/Systems-Admin/youtube-search/venv/bin/python3</string>
-        <string>/Users/james/Systems-Admin/youtube-search/maintain.py</string>
+        <string>/Users/james/Systems-Admin/youtube-search/reelm</string>
+        <string>maintain</string>
     </array>
     <key>StartInterval</key>
     <integer>900</integer>
